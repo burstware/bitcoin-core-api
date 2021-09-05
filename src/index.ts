@@ -16,10 +16,16 @@ app.get('/', (req, res) => {
 
 app.post('/rpc', async (req, res, next) => {
   try {
+    let wallet =
+      req.body.flags?.find((flag: any) => flag.includes('-rpcwallet')) || ''
+    if (wallet) {
+      wallet = wallet.replace('-rpcwallet=', '')
+    }
     const response = await executeCommand(
       req.body?.method,
       req.body?.params,
-      req.body?.network
+      req.body?.network,
+      wallet
     )
     if (response.status >= 400) {
       console.log('bad stuff')
@@ -31,9 +37,6 @@ app.post('/rpc', async (req, res, next) => {
   }
 })
 
-app.listen(port, (err) => {
-  if (err) {
-    return console.error(err)
-  }
+app.listen(port, () => {
   return console.log(`server is listening on ${port}`)
 })
